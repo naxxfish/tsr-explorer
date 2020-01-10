@@ -1,0 +1,29 @@
+version: "3.7"
+services:
+    app:
+        build: ./server
+        env_file: .env
+        ports:
+            - 3000:3000
+    updater:
+        build: ./updater
+        env_file: .env
+        volumes:
+            - ./logs:/var/log/tsrlogs/
+    postgres:
+        image: postgres
+        environment:
+            POSTGRES_USER: admin
+            POSTGRES_PASSWORD: admin
+            POSTGRES_DB: tsrdb
+        volumes:
+            - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+            - pgdata:/var/lib/postgresql/data
+    adminer:
+        image: adminer
+        restart: always
+        ports:
+        - 8080:8080
+
+volumes:
+    pgdata:
