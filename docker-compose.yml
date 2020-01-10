@@ -13,9 +13,9 @@ services:
     postgres:
         image: postgres
         environment:
-            POSTGRES_USER: admin
-            POSTGRES_PASSWORD: admin
-            POSTGRES_DB: tsrdb
+            POSTGRES_USER: ${postgres__user}
+            POSTGRES_PASSWORD: ${postgres__password}
+            POSTGRES_DB: ${postgres__database}
         volumes:
             - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
             - pgdata:/var/lib/postgresql/data
