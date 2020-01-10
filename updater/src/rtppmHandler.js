@@ -25,8 +25,9 @@ function printRTPPMReport(rtppmMessage) {
 
 function handleRTPPMDataMsgV1(rtppmMessage) {
     if (config.get('environment') === 'test')
-        logRtppmMessage(rtppmMessage);
-    printRTPPMReport(rtppmMessage);
+        printRTPPMReport(rtppmMessage);
+    logRtppmMessage(rtppmMessage);
+    
 }
 
 module.exports = handleRTPPMDataMsgV1;
