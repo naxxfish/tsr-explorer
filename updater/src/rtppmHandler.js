@@ -24,7 +24,8 @@ function printRTPPMReport(rtppmMessage) {
 }
 
 function handleRTPPMDataMsgV1(rtppmMessage) {
-    logRtppmMessage(rtppmMessage);
+    if (config.get('environment') === 'test')
+        logRtppmMessage(rtppmMessage);
     printRTPPMReport(rtppmMessage);
 }
 
