@@ -26,15 +26,16 @@ CREATE TABLE "public"."tsrs" (
     "requestor" text,
     "direction" text,
     "route_group_name" text,
-    "tsr_key" text NOT NULL,
+    "tsr_key" text,
     "won_valid_from" timestamp,
     "won_valid_to" timestamp,
     "last_published_in_won" text,
     "tsr_reference" text,
+    "route_group_code" smallint,
     CONSTRAINT "tsrs_tsr_key" UNIQUE ("tsr_key")
 ) WITH (oids = false);
 
 CREATE INDEX "tsrs_tsr_id" ON "public"."tsrs" USING btree ("tsr_id");
 
 
--- 2020-01-10 22:02:23.413691+00
+-- 2020-01-10 23:03:53.792485+00
