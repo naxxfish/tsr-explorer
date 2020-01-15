@@ -4,7 +4,7 @@ services:
         build: ./server
         env_file: .env
         ports:
-            - ${http__port}:${http__port}
+            - 127.0.0.1:${http__port}:${http__port}
     updater:
         build: ./updater
         env_file: .env
