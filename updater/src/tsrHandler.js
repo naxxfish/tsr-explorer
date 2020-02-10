@@ -13,7 +13,7 @@ function tsrReformatData (inputDate) {
 }
 
 function handleTSRBatchMsgV1 (tsrMessage) {
-  const batchMessage = tsrMessage['TSRBatchMsg']
+  const batchMessage = tsrMessage.TSRBatchMsg
   logTsrMessage(batchMessage)
   /*
     const wonData = {
@@ -65,9 +65,9 @@ function handleTSRBatchMsgV1 (tsrMessage) {
       last_published_in_won: batchMessage.publishSource,
       route_group_code: parseInt(batchMessage.routeGroupCode)
     }
-    let columnNames = []
-    let valuesPlaceholders = []
-    let values = []
+    const columnNames = []
+    const valuesPlaceholders = []
+    const values = []
     let i = 1
     Object.keys(dbFieldToValueMap).forEach((field) => {
       columnNames.push(field)
