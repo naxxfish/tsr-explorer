@@ -12,9 +12,9 @@ function stompClientError (error, stompClient, reconnect) {
 }
 
 function subscribeToTopic (stompClient, identifier, topic, messageHandler) {
-  let subscribeHeaders = {
-    'destination': topic,
-    'ack': 'client-individual',
+  const subscribeHeaders = {
+    destination: topic,
+    ack: 'client-individual',
     'activemq.subscriptionName': `${config.get('feed:system_name')}-${identifier}-${config.get('environment')}`
   }
 
@@ -46,7 +46,7 @@ function connect (messageHandler) {
     }
   ]
   const reconnectOptions = {
-    'maxReconnects': 30
+    maxReconnects: 30
   }
   const manager = new Stomp.ConnectFailover(stompServers, reconnectOptions)
 
