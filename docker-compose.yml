@@ -3,6 +3,8 @@ services:
     app:
         build: ./server
         env_file: .env
+        volumes:
+            - ./client/build:/usr/src/app/client
         ports:
             - 127.0.0.1:${http__port}:${http__port}
     updater:
