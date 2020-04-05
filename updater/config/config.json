@@ -9,10 +9,6 @@
             {
                 "id": "tsr_all",
                 "topicName": "/topic/TSR_ALL_ROUTE"
-            },
-            {
-                "id": "rtppm_all",
-                "topicName": "/topic/RTPPM_ALL"
             }
         ]
     }
