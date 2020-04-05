@@ -8,6 +8,9 @@ nconf.defaults({
     },
     http: {
         port: 3000
+    },
+    log: {
+        level: 'info'
     }
 });
 

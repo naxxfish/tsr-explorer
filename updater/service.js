@@ -13,15 +13,19 @@ function handleMessage (messageString) {
   }
   const topLevelKeys = Object.keys(parsedMessage)
   topLevelKeys.forEach((topLevelKey) => {
-    switch (topLevelKey) {
-      case 'TSRBatchMsgV1':
-        handleTSRBatchMsgV1(parsedMessage['TSRBatchMsgV1'])
-        break
-      case 'RTPPMDataMsgV1':
-        handleRTPPMDataMsgV1(parsedMessage['RTPPMDataMsgV1'])
-        break
-      default:
-        console.error(`Unknown top level message ${topLevelKey} recieved`)
+    try {
+      switch (topLevelKey) {
+        case 'TSRBatchMsgV1':
+          handleTSRBatchMsgV1(parsedMessage['TSRBatchMsgV1'])
+          break
+        case 'RTPPMDataMsgV1':
+          handleRTPPMDataMsgV1(parsedMessage['RTPPMDataMsgV1'])
+          break
+        default:
+          console.error(`Unknown top level message ${topLevelKey} recieved`)
+      }
+    } catch (e) {
+      console.error(`Couldn't process message: ${parsedMessage.toString()}: ${e.message}`)
     }
   })
 }
@@ -36,7 +40,7 @@ function handleStompMessage (stompClient, message) {
     try {
       handleMessage(messageString)
     } catch (e) {
-      console.error(`Malformed JSON message recieved: ${e}`)
+      console.error(`Malformed JSON message recieved: ${e} - ${messageString}`)
       stompClient.nack(message)
     }
   })
@@ -59,7 +63,7 @@ function main () {
     })
   }
   stompConnection.connect(handleStompMessage)
-  console.log('listening for data')
+  console.log('Waiting for TSR messages from STOMP')
 }
 
 main()

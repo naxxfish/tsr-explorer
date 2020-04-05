@@ -1,12 +1,14 @@
 version: "3.7"
 services:
-    app:
+    frontend:
+        build: ./frontend
+        ports:
+            - "3000:80"
+    api:
         build: ./server
         env_file: .env
-        volumes:
-            - ./client/build:/usr/src/app/client
-        ports:
-            - 127.0.0.1:${http__port}:${http__port}
+        expose:
+            - ${http__port}
     updater:
         build: ./updater
         env_file: .env
@@ -14,6 +16,7 @@ services:
             - ./logs:/var/log/tsrlogs/
     postgres:
         image: postgres
+        env_file: .env
         environment:
             POSTGRES_USER: ${postgres__user}
             POSTGRES_PASSWORD: ${postgres__password}

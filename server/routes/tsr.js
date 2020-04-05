@@ -4,14 +4,37 @@ const db = require('../db');
 const config = require('../config');
 const moment = require('moment');
 
+
 router.get('/count', async (req, res) => {
     try {
-        const tsrCount = await db.query('SELECT  COUNT(DISTINCT tsr_reference) AS total_tsrs FROM tsrs');
+        const tsrCount = await db.query('SELECT COUNT(DISTINCT tsr_reference) AS total_tsrs FROM tsrs');
         if (tsrCount.rows[0]) {
             res.send(tsrCount.rows[0]);
         }
     } catch (e) {
         res.status(500).send(e);
+    }
+});
+
+router.get('/current/by-route-code/:routeCode', async (req, res) => {
+    try {
+        req.log.info(req.params)
+        const tsrByRouteCode = await db.query(`
+            SELECT * FROM tsrs tsrs1 
+                WHERE tsrs1.version = (SELECT max(version) FROM tsrs tsrs2 WHERE tsrs2.tsr_id = tsrs1.tsr_id) 
+                AND route_code = $1 
+                AND valid_from < $2 
+                AND valid_to > $2`, 
+            [ req.params.routeCode, moment().toISOString() ]);
+        req.log.info(tsrByRouteCode);
+        if (tsrByRouteCode.rowCount > 0) {
+            res.status(200).send(tsrByRouteCode.rows);
+        } else {
+            res.status(200).send([])
+        }
+    } catch (e) {
+        res.status(500).send(e);
+        req.log.error(e);
     }
 });
 
