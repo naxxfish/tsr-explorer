@@ -7,8 +7,10 @@ services:
     api:
         build: ./server
         env_file: .env
+        environment:
+            http__port: 3000
         expose:
-            - ${http__port}
+            - 3000
     updater:
         build: ./updater
         env_file: .env
