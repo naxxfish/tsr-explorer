@@ -2,13 +2,13 @@ version: "3.7"
 services:
     frontend:
         build: ./frontend
-        volumes: 
-            - "./client/build:/usr/share/nginx/html"
         ports:
             - "3000:80"
     api:
         build: ./server
         env_file: .env
+        environment:
+            http__port: ${http__port}
         expose:
             - ${http__port}
     updater:
@@ -16,6 +16,16 @@ services:
         env_file: .env
         volumes:
             - ./logs:/var/log/tsrlogs/
+    installer:
+      build: ./installer
+      env_file: .env
+      environment:
+        files__bplan: /usr/src/data/reference/bplan/Geography_20200517_to_20201212_from_20191216.txt
+      volumes:
+        - ./reference:/usr/src/data/reference
+      deploy:
+        restart_policy: 
+          condition: none
     postgres:
         image: postgres
         env_file: .env
