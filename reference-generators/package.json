@@ -1,0 +1,10 @@
+{
+  "author": "Chris Roberts <chris@naxxfish.net> (http://naxxfish.net/)",
+  "name": "",
+  "version": "",
+  "dependencies": {
+    "csv-parse": "^4.8.8",
+    "windows-1252": "^1.0.0",
+    "yargs": "^15.3.1"
+  }
+}
