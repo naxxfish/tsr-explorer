@@ -1,37 +1,44 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../db');
-const config = require('../config');
-const moment = require('moment');
-
+const TSRModel = require('../models/tsr')
 
 router.get('/count', async (req, res) => {
     try {
-        const tsrCount = await db.query('SELECT COUNT(DISTINCT tsr_reference) AS total_tsrs FROM tsrs');
-        if (tsrCount.rows[0]) {
-            res.send(tsrCount.rows[0]);
-        }
+        const tsrCount = await TSRModel.countTotal();
+        res.send({
+            total_tsrs: tsrCount
+        });
     } catch (e) {
         res.status(500).send(e);
     }
 });
 
-router.get('/current/by-route-code/:routeCode', async (req, res) => {
+router.get('/by-route-code/:routeCode', async (req, res) => {
     try {
-        req.log.info(req.params)
-        const tsrByRouteCode = await db.query(`
-            SELECT * FROM tsrs tsrs1 
-                WHERE tsrs1.version = (SELECT max(version) FROM tsrs tsrs2 WHERE tsrs2.tsr_id = tsrs1.tsr_id) 
-                AND route_code = $1 
-                AND valid_from < $2 
-                AND valid_to > $2`, 
-            [ req.params.routeCode, moment().toISOString() ]);
-        req.log.info(tsrByRouteCode);
-        if (tsrByRouteCode.rowCount > 0) {
-            res.status(200).send(tsrByRouteCode.rows);
-        } else {
-            res.status(200).send([])
+        const tsrsByRoute = await TSRModel.findByRoute(req.params['routeCode'], {
+            historic: false
+        })
+        res.status(200).send(tsrsByRoute);
+    } catch (e) {
+        res.status(500).send(e);
+        req.log.error(e);
+    }
+});
+
+router.get('/by-route-group/:routeGroupCode', async (req, res) => {
+    try {
+        req.log.info(req.params['routeGroupCode'])
+        if (isNaN(req.params['routeGroupCode'])) {
+            res.status(500).send({
+                status: 'error',
+                message: 'Route group codes are always numbers'
+            });
+            return;
         }
+        const tsrsByRouteGroup = await TSRModel.findByRouteGroup(parseInt(req.params['routeGroupCode']), {
+            historic: false
+        })
+        res.status(200).send(tsrsByRouteGroup);
     } catch (e) {
         res.status(500).send(e);
         req.log.error(e);
@@ -40,76 +47,8 @@ router.get('/current/by-route-code/:routeCode', async (req, res) => {
 
 router.get('/by-reference/*', async (req, res) => {
     try {
-        const tsrRecordResult = await db.query('SELECT * FROM tsrs WHERE tsr_reference = $1 ORDER BY version LIMIT 1', [ req.params[0] ]);
-        if (tsrRecordResult.rows[0]) {
-            res.send(tsrRecordResult.rows[0]);
-        } else {
-            res.send({msg: 'No records'});
-        }
-    } catch (e) {
-        res.status(500).send(e);
-    }
-});
-
-router.get('/current/:area?', async (req, res) => {
-    try {
-        let tsrRecordResult;
-        if (req.params['area'] !== undefined) {
-            tsrRecordResult = await db.query(`
-                SELECT * FROM tsrs alltsr 
-                INNER JOIN 
-                    (SELECT tsr_id, MAX(version) AS current_version FROM tsrs GROUP BY tsr_id) grouped_tsr
-                ON grouped_tsr.tsr_id = alltsr.tsr_id AND grouped_tsr.current_version = alltsr.version
-                WHERE 
-                    alltsr.route_group_name = $2 AND
-                    alltsr.valid_from < $1 AND
-                    alltsr.valid_to > $1
-                `, [ moment().toISOString(), req.params['area'] ]);
-        } else {
-            tsrRecordResult = await db.query(`
-                SELECT * FROM tsrs alltsr 
-                INNER JOIN 
-                    (SELECT tsr_id, MAX(version) AS current_version FROM tsrs GROUP BY tsr_id) grouped_tsr
-                ON grouped_tsr.tsr_id = alltsr.tsr_id AND grouped_tsr.current_version = alltsr.version
-                WHERE 
-                alltsr.valid_from < $1 AND
-                alltsr.valid_to > $1`,
-                [ moment().toISOString() ]);
-        }
-        
-        if (tsrRecordResult.rows[0]) {
-            res.send(tsrRecordResult.rows);
-        } else {
-            res.send({msg: 'No records'});
-        }
-    } catch (e) {
-        res.status(500).send(e);
-    }
-});
-
-router.get('/all/:area?', async (req, res) => {
-    try {
-        let tsrRecordResult;
-        if (req.params['area'] !== undefined) {
-            tsrRecordResult = await db.query(`
-                SELECT * FROM tsrs alltsr 
-                INNER JOIN 
-                    (SELECT tsr_id, MAX(version) AS current_version FROM tsrs GROUP BY tsr_id) grouped_tsr
-                ON grouped_tsr.tsr_id = alltsr.tsr_id AND grouped_tsr.current_version = alltsr.version
-                WHERE alltsr.route_group_name = $1`, [ req.params['area'] ]);
-        } else {
-            tsrRecordResult = await db.query(`
-                SELECT * FROM tsrs alltsr 
-                INNER JOIN 
-                    (SELECT tsr_id, MAX(version) AS current_version FROM tsrs GROUP BY tsr_id) grouped_tsr
-                ON grouped_tsr.tsr_id = alltsr.tsr_id AND grouped_tsr.current_version = alltsr.version`);
-        }
-        
-        if (tsrRecordResult.rows[0]) {
-            res.send(tsrRecordResult.rows);
-        } else {
-            res.send({msg: 'No records'});
-        }
+        const tsrRecordResult = await TSRModel.findByTsrReference(req.params[0], { historic: false })
+        res.status(200).send(tsrRecordResult);
     } catch (e) {
         res.status(500).send(e);
     }
