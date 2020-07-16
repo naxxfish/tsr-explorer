@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import TsrTable from './components/TsrTable'
+import RouteGroupPicker from './components/RouteGroupPicker'
 
 function App() {
   return (
@@ -8,7 +8,7 @@ function App() {
       <header className="App-header">
       <h1>TSR Table</h1>
       </header>
-        <TsrTable></TsrTable>
+        <RouteGroupPicker></RouteGroupPicker>
     </div>
   );
 }
