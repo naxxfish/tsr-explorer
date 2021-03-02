@@ -4,13 +4,20 @@ services:
         build: ./frontend
         ports:
             - "${http__port}:80"
+        networks:
+          - webproxy-network
+          - default
+        environment:
+          - VIRTUAL_HOST=tsrexplorer.naxxfish.net
+          - LETSENCRYPT_HOST=tsrexplorer.naxxfish.net
+          - LETSENCRYPT_EMAIL=chris@naxxfish.net
+          - VIRTUAL_PROTO=http
+          - VIRTUAL_PORT=80
     api:
         build: ./server
         env_file: .env
         environment:
-            http__port: ${http__port}
-        expose:
-            - ${http__port}
+            http__port: 3000
     updater:
         build: ./updater
         env_file: .env
@@ -29,3 +36,8 @@ services:
 
 volumes:
     pgdata:
+
+networks:
+  webproxy-network:
+    external:
+      name: webproxy-network
